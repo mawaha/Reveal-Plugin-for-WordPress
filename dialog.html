@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>{#reveal_dlg.title}</title>
+	<script src="../../../wp-includes/js/tinymce/tiny_mce_popup.js"></script>
+</head>
+<body>
+
+<div id="reveal-shortcode-dialog">
+	<form action="#" id="reveal-shortcode-form">
+		<fieldset>
+			<div>
+				<p><label for="revealid">{#reveal_dlg.label_id} <input type="text" id="revealid" /></label></p>
+			</div>
+			<div class="panel">
+				<p><label for="reveallink">{#reveal_dlg.label_link} <input type="text" id="reveallink" />{#reveal_dlg.label_optional}</label></p>
+			</div>
+		</fieldset>
+		<div class="mceActionPanel">
+			<button type="submit" id="insert">{#reveal_dlg.label_submit}</button>
+			<button type="reset" id="cancel">{#reveal_dlg.label_cancel}</button>
+		</div>
+	</form>
+</div>
+<script>
+
+	tinyMCEPopup.requireLangPack();
+
+	// Add a script element as a child of the body
+	function downloadJSAtOnload() {
+
+		var element = document.createElement("script");
+		element.src = "js/dialog.js";
+		element.defer = true; // For IE
+		document.body.appendChild(element);
+	}
+
+	// Check for browser support of event handling capability
+	if (window.addEventListener)
+		window.addEventListener("load", downloadJSAtOnload, false);
+	else if (window.attachEvent)
+		window.attachEvent("onload", downloadJSAtOnload);
+	else window.onload = downloadJSAtOnload;
+</script>
+</body>
+</html>

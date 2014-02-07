@@ -1,11 +1,11 @@
 <?php
 /*
-Plugin Name: Reveal Shortcode Plugin for WordPress
+Plugin Name: Reveal Plugin Shortcodes
 Plugin Author: Matthew Hadwen
 Plugin URI:
 Author URI: http://www.mawaha.com
 Version: 1.0
-Description: Adds a handy shortcode for creating inline modal box content for use with the Zurb Foundation Reveal script. Requires Zurb Foundation Reveal.
+Description: Adds a handy shortcode for creating inline modal box content for use with the Zurb Foundation Reveal plugin. Requires Theme to be using the Zurb Foundation Reveal.
 */
 
 /**
@@ -30,10 +30,10 @@ function mwh_reveal_shortcode($atts, $content = null){
 		return "[Warning! Reveal shortcode requires an ID]";
 
 
-	$content = '<div class="reveal-modal" id="' . $id . '">' . $content . '</div>';
+	$content = '<div class="reveal-modal" id="' . $id . '" data-reveal>' . $content . '</div>';
 
 	if($link)
-		$content = '<a href="#" data-reveal-id="' . $id . '">' . $link . '</a>' . $content;
+		$content = '<a href="#" data-reveal-id="' . $id . '" data-reveal>' . $link . '</a>' . $content;
 
 	return do_shortcode($content);
 }
@@ -47,7 +47,7 @@ add_shortcode('reveal', 'mwh_reveal_shortcode');
  */
 function mwh_reveal_shortcode_scripts(){
 
-	if (!is_admin){
+	if (!is_admin()){
 		wp_enqueue_script('jquery');
 		wp_enqueue_script('reveal-shortcode', plugins_url('js/reveal-shortcode.js', __FILE__));
 	}
@@ -71,7 +71,7 @@ function mwh_add_reveal_button(){
 	add_filter('mce_external_plugins', 'mwh_add_reveal_mce_plugin');
 	add_filter('mce_buttons', 'mwh_register_reveal_button');
 }
-add_action('init', 'mwh_add_reveal_button');
+add_action('admin_init', 'mwh_add_reveal_button');
 
 /**
  * Add MCE plugin script location to MCE plugin array
@@ -82,7 +82,7 @@ add_action('init', 'mwh_add_reveal_button');
  */
 function mwh_add_reveal_mce_plugin($plugin_array){
 
-	$plugin_array['mwhreveal'] = plugins_url('/reveal-shortcode/js/reveal-shortcode-plugin.js');
+	$plugin_array['mwhreveal'] = plugins_url('/editor_plugin_src.js', __FILE__);
 
 	return $plugin_array;
 }
@@ -102,21 +102,42 @@ function mwh_register_reveal_button($buttons){
 }
 
 /**
- * mwh_refresh_mce function.
+ * Increment TinyMCE version number to avoid caching
  *
  * @access public
  * @param int $version
  * @return $version
  */
 function mwh_refresh_mce($version){
-	$version +=1;
-
-	return $version;
+	return ++$version;
 }
 add_filter('tiny_mce_version', 'mwh_refresh_mce');
 
 /**
- * mwh_add_reveal_quicktag function.
+ * Localize Script
+ *
+ * @access public
+ * @return void
+ */
+function mwh_reveal_admin_head()
+{
+    $plugin_url = plugins_url( '/', __FILE__ );
+?>
+	<script type='text/javascript'>
+	/* <![CDATA[ */
+	var reveal = {
+		plugin_url: "<?php echo $plugin_url; ?>",
+	    tinymce_url: "<?php echo site_url('/wp-includes/js/tinymce'); ?>"
+	};
+	/* ]]> */
+	</script>
+<?php
+}
+foreach( array('post.php','post-new.php') as $hook )
+     add_action( "admin_head-$hook", 'mwh_reveal_admin_head' );
+
+/**
+ * Quick tag method for adding the reveal shortcode
  *
  * @access public
  * @return void
